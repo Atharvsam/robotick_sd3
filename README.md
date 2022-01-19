@@ -30,7 +30,7 @@ python user_ui.py
 python3 user_ui.py
 ```
 
-<img src="image.png">
+<img src="image.png" alt="" width="400" data-align="inline">
 
 1. Go to File -> Sign In and enter the username and password to sign in
 
