@@ -4,6 +4,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import random
+import request_generator
 
 class level2_window(QMainWindow):
     
@@ -69,13 +70,13 @@ class level2_window(QMainWindow):
         self.show()
 
     def random_token(self):
-        return random.random(100, 200)
+        pass
 
     def send_req_button_action(self, click):
         pass
 
     def gen_req_button_action(self, click):
-        pass
+        self.token_no_textbox.setText(request_generator.GenerateID())
 
     def create_actions(self):
         self.sign_in_action = QAction('Sign In', self)
