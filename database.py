@@ -1,5 +1,6 @@
 import sqlite3
 import random
+import request_generator as rq
 
 # Create an object for the required database
 database = sqlite3.connect("college_rooms.db")
@@ -14,6 +15,7 @@ def CreateTable(command):
         cur.execute(command)
         print("Table created successfully")
     except Exception as err:
+        # print(err)
         pass
 
 # A function to check if a room is available
@@ -54,7 +56,7 @@ def InitDatabase(Buildings, Floors, Rooms):
                 
 # A function which allows the user to book a particular room at a certain date / time for a particular duration
 # Returns the location of the chosen room if successful, else if all rooms of the required type are booked, returns -1
-def BookRoom(Building, RoomType, StartTime, Duration):
+def BookRoom(TokenNo, Building, RoomType, StartTime, Duration):
     try:
         global cur
         
@@ -66,11 +68,13 @@ def BookRoom(Building, RoomType, StartTime, Duration):
         # Execute the commands to insert booking information into both the tables
         command = "INSERT INTO timetable VALUES ('" + assignedRoom + "', '" + StartTime + "', '" + Duration + "')"
         notavailable = "UPDATE rooms SET Availability = 0 WHERE Location = '" + assignedRoom + "'"
+        logentry = "INSERT INTO log VALUES ('" + TokenNo + "', '" + assignedRoom + "')"
+        print(logentry)
         cur.execute(command)
         cur.execute(notavailable)
+        cur.execute(logentry)
         return assignedRoom
     except Exception as err:
-        print("No more rooms of the selected type in the selected building are are available!")
         return -1
 
 # A function to return all available rooms of a particular type
@@ -97,14 +101,17 @@ def AvailableRooms(RoomType):
 CreateTable("CREATE TABLE rooms (Location varchar(10) PRIMARY KEY, Availability int, Type varchar(20))")
 
 # Create the table which will store the list of booked rooms and their timings
-CreateTable("CREATE TABLE timetable (Location varchar(10) PRIMARY KEY, Initiation_Time smalldatetime, Duration time, FOREIGN KEY (Location) REFERENCES rooms(Location))")
+CreateTable("CREATE TABLE timetable (Location varchar(10) PRIMARY KEY, Initiation_Time time, Duration time, FOREIGN KEY (Location) REFERENCES rooms(Location))")
+
+# Create a table for logging requests
+CreateTable("CREATE TABLE log (TokenNo varchar(10), Location varchar(10) PRIMARY KEY, FOREIGN KEY (Location) REFERENCES rooms(Location))")
 
 # Initialzing the database with all available classrooms in the campus
 # The first argument is the number of buildings, the second is the number of floors on each building and third is the number of rooms on each floor
 # The type of each room is assigned randomly, but would be filled out manually in a real-life scenario
 InitDatabase(4, 3, 4)
 
-print(BookRoom("2", "Classroom", "2022-01-14 12:00:00", "01:00:00"))
+print(BookRoom(rq.GenerateID(), "1", "Classroom", "12:00:00", "01:00:00"))
 print(AvailableRooms("Classroom"))
 
 database.commit()
