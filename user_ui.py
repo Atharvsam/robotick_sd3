@@ -3,6 +3,7 @@ import threading
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt
 import request_generator
 import database as db
 
@@ -16,10 +17,15 @@ class level2_window(QMainWindow):
     def __init__(self):
         super().__init__()
         self.sign_in_win = sign_in_window()
+        self.approved_win = approved_window()
         self.username = ""
         self.auth = True
-        self.approved_list = []
+        self.approved_list = [["Token", "Room"]]
         self.room_type = ""
+
+        self.err_box = QMessageBox()
+        self.err_box.setWindowTitle("Error")
+        self.err_box.setText("No room available with the given description!")
         
         self.create_actions()
         self.setWindowTitle("RAD-MaS")
@@ -75,7 +81,7 @@ class level2_window(QMainWindow):
         self.duration_label = QLabel("Duration:", self)
         self.duration_label.setGeometry(430, 190, 80, 20)
 
-        self.duration_textbox = QLineEdit("0", self)
+        self.duration_textbox = QLineEdit("0000", self)
         self.duration_textbox.setGeometry(490, 190, 40, 20)
 
         self.reason_label = QLabel("Reason for allotment: ", self)
@@ -95,6 +101,10 @@ class level2_window(QMainWindow):
             room = db.BookRoom(TokenNo=self.token_no_textbox.text(), Building=self.building_no_textbox.text(), RoomType=self.room_type, StartTime=self.time_textbox.text(), Duration=self.duration_textbox.text())
             if room != -1:
                 self.approved_list.append([self.token_no_textbox.text(), room])
+                self.err_box.setText(f"Room {room} has been alloted for {self.token_no_textbox.text()}!")
+                self.err_box.exec_()
+            else:
+                self.err_box.exec_()
             print(room)
             db.CommitDatabase()
         else:
@@ -143,7 +153,23 @@ class level2_window(QMainWindow):
         self.sign_in_win.show()
 
     def approved(self):
-        pass
+        self.approved_win.create_table(self.approved_list)
+        self.approved_win.show()
+
+class approved_tabel_model(QAbstractTableModel):
+    def __init__(self, data):
+        super(approved_tabel_model, self).__init__()
+        self.approved_list = data
+
+    def data(self, index, role):
+        if role == Qt.DisplayRole:
+            return self.approved_list[index.row()][index.column()]
+
+    def rowCount(self, index):
+        return len(self.approved_list)
+
+    def columnCount(self, index):
+        return len(self.approved_list[0])
 
 
 class approved_window(QWidget):
@@ -151,7 +177,7 @@ class approved_window(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Approved Rooms")
-        self.setGeometry(100, 100, 300, 150)
+        self.setGeometry(100, 100, 400, 400)
         
         self.grid = QGridLayout()
         self.setLayout(self.grid)
@@ -159,8 +185,13 @@ class approved_window(QWidget):
         self.approved_list = QLabel("Approved Requests: ", self)
         self.grid.addWidget(self.approved_list, 0, 0)
 
-        self.approved_list = QComboBox(self)
-        self.grid.addWidget(self.approved_list, 0, 1)
+        self.approved_tab = QTableView(self)
+        self.approved_tab.setGeometry(150, 100, 250, 200)
+
+    def create_table(self, data):
+        self.model = approved_tabel_model(data)
+        self.approved_tab.setModel(self.model)
+        
 
 
 class sign_in_window(QWidget):
