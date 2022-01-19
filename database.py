@@ -126,6 +126,20 @@ def AvailableRooms(RoomType):
     except:
         pass
 
+def Deallocate(TokenID):
+    try:
+        global cur
+        roomSelectionCommand = "SELECT Location from log WHERE TokenNo = '" + TokenID + "'"
+        Location = cur.execute(roomSelectionCommand).fetchall() [0][0]
+        logDeletionCommand = "DELETE FROM log WHERE TokenNo = '" + TokenID + "'"
+        timetableDeletionCommand = "DELETE FROM timetable WHERE Location = '" + Location + "'"
+        freeRoomCommand = "UPDATE rooms SET Availability = 1 WHERE Location = '" + Location + "'"
+        cur.execute(logDeletionCommand)
+        cur.execute(timetableDeletionCommand)
+        cur.execute(freeRoomCommand)
+    except:
+        print("Could not delete log, check token number")
+
 def ParseTime(time):
     formattedtime = time[0] + time[1] + ":" + time[2] + time[3] + ":00"
     return formattedtime
