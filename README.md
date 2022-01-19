@@ -20,3 +20,22 @@ To design a system for finding and managing room availability within the campus 
 ### <u>Idea Title</u>
 
 RAD-MaS
+
+# Usage
+
+Run either of the following two commands in a shell.
+
+```
+python user_ui.py
+python3 user_ui.py
+```
+
+<img src="https://lh6.googleusercontent.com/pN0oBlTKKrmi74D0N-NnLQBmkCfVKHQdWD1yHSfyoKeEoIkaNhs5lokP0zsnzMjuyHyhNP-C0Z-hjwHAfw85euPseuOLhgOzMYNxgV9YlM_3UNbaWkk6zjD-xwkFGhmyphyO9LUJ3-OA" title="" alt="" width="377">
+
+1. Go to File -> Sign In and enter the username and password to sign in
+
+2. Click "Generate new Request" to generate a token number.
+
+3. Choose the type of classroom you want to book, the desired building number, the start time (in HHMM) and duration (again in HHMM).
+
+4. Enter a reason for allotment, then click "Send Request".
