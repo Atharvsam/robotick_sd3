@@ -8,10 +8,10 @@ by Atharv Sapre, Atharva Vaidya
 
 Group Name: Robotick
 
-| S.No | Name           | Phone Number | Email ID                  |
-|:----:|:--------------:|:------------:|:-------------------------:|
-| 1    | Atharv Sapre   | 9075700688   | atharvasapre22@gmail.com  |
-| 2    | Atharva Vaidya | 8380059239   | atharva16vaidya@gmail.com |
+| S.No | Name           | Email ID                  |
+|:----:|:--------------:|:-------------------------:|
+| 1    | Atharv Sapre   | atharvasapre22@gmail.com  |
+| 2    | Atharva Vaidya | atharva16vaidya@gmail.com |
 
 ### <u>Problem Statement</u>
 
