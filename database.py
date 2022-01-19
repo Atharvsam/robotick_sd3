@@ -50,15 +50,24 @@ def InitDatabase(Buildings, Floors, Rooms):
         pass
                 
 # A function which allows the user to book a particular room at a certain date / time for a particular duration
-def BookRoom(Location, StartTime, Duration):
+def BookRoom(Building, RoomType, StartTime, Duration):
     try:
         global cur
-        command = "INSERT INTO timetable VALUES (" + Location + ", " + StartTime + ", " + Duration + ")"
-        notavailable = "UPDATE TABLE timetable SET Availability = 0 WHERE"
-        print(command)
+        
+        # Select a random available room of the requested type
+        roomSelectionCommand = "SELECT Location from rooms WHERE Type = " + RoomType + " AND Availability = 1"
+        availableRooms = cur.execute(roomSelectionCommand).fetchall()
+        assignedRoom = random.choice(availableRooms) [0]
+
+        # Execute the commands to insert booking information into both the tables
+        command = "INSERT INTO timetable VALUES ('" + assignedRoom + "', " + StartTime + ", " + Duration + ")"
+        notavailable = "UPDATE rooms SET Availability = 0 WHERE Location = '" + assignedRoom + "'"
+        cur.execute(command)
+        cur.execute(notavailable)
+        return assignedRoom
     except Exception as err:
-        print(err)
-        # pass
+        print("No more rooms of the seleccted type are are available!")
+        return -1
 
 
 # Create the table which will store information about rooms.
@@ -66,9 +75,8 @@ def BookRoom(Location, StartTime, Duration):
 CreateTable("CREATE TABLE rooms (Location varchar(10) PRIMARY KEY, Availability int, Type varchar(20))")
 CreateTable("CREATE TABLE timetable (Location varchar(10) PRIMARY KEY, Initiation_Time smalldatetime, Duration time, FOREIGN KEY (Location) REFERENCES rooms(Location))")
 
+InitDatabase(6, 5, 10)
 
-InitDatabase(4, 3, 5)
+print(BookRoom("1", "'Classroom'", "'2022-01-14 12:00:00'", "'01:00:00'"))
+
 database.commit()
-
-BookRoom("'B1F3R4")
-print(CheckAvailability("'B1F3R4'"))
