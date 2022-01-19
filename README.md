@@ -30,7 +30,7 @@ python user_ui.py
 python3 user_ui.py
 ```
 
-
+<img src="file:///C:/Users/Atharva/AppData/Roaming/marktext/images/2022-01-19-20-35-17-image.png" title="" alt="" width="400">
 
 1. Go to File -> Sign In and enter the username and password to sign in
 
