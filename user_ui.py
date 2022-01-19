@@ -3,8 +3,13 @@ import threading
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-import random
 import request_generator
+import database as db
+
+# HHMM   HHMM
+# 0000   0000
+
+db.database, db.cur = db.ConnectDatabase()
 
 class level2_window(QMainWindow):
     
@@ -14,9 +19,10 @@ class level2_window(QMainWindow):
         self.username = ""
         self.auth = True
         self.approved_list = []
+        self.room_type = ""
         
         self.create_actions()
-        self.setWindowTitle("Find Class")
+        self.setWindowTitle("RAD-MaS")
         self.setGeometry(100, 100, 600, 400)
         self.sign_in = False
         self.menu = self.menuBar()
@@ -42,26 +48,41 @@ class level2_window(QMainWindow):
         self.choose_label = QLabel("Choose Any One Type: ", self)
         self.choose_label.setGeometry(400, 80, 150, 20)
 
-        self.classroom_checkbox = QCheckBox("Classroom", self)
-        self.classroom_checkbox.setGeometry(450, 100, 100, 20)
+        self.classroom_checkbox1 = QRadioButton("Classroom", self)
+        self.classroom_checkbox1.setGeometry(450, 100, 100, 20)
+        self.classroom_checkbox1.clicked.connect(self.classroom_checkbox1_action)
 
-        self.classroom_checkbox = QCheckBox("Seminar Hall", self)
-        self.classroom_checkbox.setGeometry(450, 130, 100, 20)
+        self.classroom_checkbox2 = QRadioButton("Seminar Hall", self)
+        self.classroom_checkbox2.setGeometry(450, 130, 100, 20)
+        self.classroom_checkbox2.clicked.connect(self.classroom_checkbox2_action)
 
-        self.classroom_checkbox = QCheckBox("Lab", self)
-        self.classroom_checkbox.setGeometry(450, 160, 100, 20)
+        self.classroom_checkbox3 = QRadioButton("Lab", self)
+        self.classroom_checkbox3.setGeometry(450, 160, 100, 20)
+        self.classroom_checkbox3.clicked.connect(self.classroom_checkbox3_action)
+
+        self.building_no_label = QLabel("Building Number: ", self)
+        self.building_no_label.setGeometry(80, 190, 100, 20)
+
+        self.building_no_textbox = QLineEdit("1", self)
+        self.building_no_textbox.setGeometry(190, 190, 60, 20)
 
         self.time_label = QLabel("Time (24hr): ", self)
-        self.time_label.setGeometry(350, 190, 80, 20)
+        self.time_label.setGeometry(270, 190, 80, 20)
 
         self.time_textbox = QLineEdit("0000", self)
-        self.time_textbox.setGeometry(450, 190, 100, 20)
+        self.time_textbox.setGeometry(350, 190, 60, 20)
+
+        self.duration_label = QLabel("Duration:", self)
+        self.duration_label.setGeometry(430, 190, 80, 20)
+
+        self.duration_textbox = QLineEdit("0", self)
+        self.duration_textbox.setGeometry(490, 190, 40, 20)
 
         self.reason_label = QLabel("Reason for allotment: ", self)
-        self.reason_label.setGeometry(300, 220, 200, 20)
+        self.reason_label.setGeometry(120, 220, 200, 20)
 
         self.reason_text = QTextEdit("", self)
-        self.reason_text.setGeometry(300, 250, 280, 100)
+        self.reason_text.setGeometry(120, 250, 320, 100)
 
         self.send_req_button = QPushButton("Send Request", self)
         self.send_req_button.setGeometry(0, 130, 100, 40)
@@ -69,14 +90,27 @@ class level2_window(QMainWindow):
 
         self.show()
 
-    def random_token(self):
-        pass
-
     def send_req_button_action(self, click):
-        pass
+        if self.sign_in:
+            room = db.BookRoom(TokenNo=self.token_no_textbox.text(), Building=self.building_no_textbox.text(), RoomType=self.room_type, StartTime=self.time_textbox.text(), Duration=self.duration_textbox.text())
+            if room != -1:
+                self.approved_list.append([self.token_no_textbox.text(), room])
+            print(room)
+            db.CommitDatabase()
+        else:
+            print("Sign In")
 
     def gen_req_button_action(self, click):
         self.token_no_textbox.setText(request_generator.GenerateID())
+
+    def classroom_checkbox1_action(self):
+        self.room_type = "Classroom"
+
+    def classroom_checkbox2_action(self):
+        self.room_type = "Seminar Hall"
+
+    def classroom_checkbox3_action(self):
+        self.room_type = "Lab"
 
     def create_actions(self):
         self.sign_in_action = QAction('Sign In', self)
@@ -156,6 +190,9 @@ class sign_in_window(QWidget):
 
 
 if __name__ == '__main__':
+    db.MakeTables()
+    db.InitDatabase(4, 4, 4)
+    db.CommitDatabase()
     main_app = QApplication(sys.argv)
     window = level2_window()
     #window.stop_autheticator()

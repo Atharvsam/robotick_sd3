@@ -8,6 +8,9 @@ import request_generator as rq
 # Create a cursor object, used to make changes to the database
 # cur = database.cursor()
 
+database = 0
+cur = 0
+
 # A function to connect to the requried database
 def ConnectDatabase():
     db = sqlite3.connect("college_rooms.db")
@@ -101,6 +104,7 @@ def BookRoom(TokenNo, Building, RoomType, StartTime, Duration):
         cur.execute(logentry)
         return assignedRoom
     except Exception as err:
+        print(err)
         return -1
 
 # A function to return all available rooms of a particular type
@@ -127,17 +131,17 @@ def ParseTime(time):
     return formattedtime
 
 # Connect to the database
-database, cur = ConnectDatabase()
+#database, cur = ConnectDatabase()
 
-MakeTables()
+# MakeTables()
 
-# Initialzing the database with all available classrooms in the campus
-# The first argument is the number of buildings, the second is the number of floors on each building and third is the number of rooms on each floor
-# The type of each room is assigned randomly, but would be filled out manually in a real-life scenario
-InitDatabase(4, 3, 4)
+# # Initialzing the database with all available classrooms in the campus
+# # The first argument is the number of buildings, the second is the number of floors on each building and third is the number of rooms on each floor
+# # The type of each room is assigned randomly, but would be filled out manually in a real-life scenario
+# InitDatabase(4, 3, 4)
 
-print(BookRoom(rq.GenerateID(), "1", "Classroom", "1300", "0130"))
-print(AvailableRooms("Classroom"))
+# print(BookRoom(rq.GenerateID(), "1", "Classroom", "1300", "0130"))
+# print(AvailableRooms("Classroom"))
 
-# Commit all changes to the database
-CommitDatabase()
+# # Commit all changes to the database
+# CommitDatabase()
