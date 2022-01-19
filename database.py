@@ -3,10 +3,21 @@ import random
 import request_generator as rq
 
 # Create an object for the required database
-database = sqlite3.connect("college_rooms.db")
+# database = sqlite3.connect("college_rooms.db")
 
 # Create a cursor object, used to make changes to the database
-cur = database.cursor()
+# cur = database.cursor()
+
+# A function to connect to the requried database
+def ConnectDatabase():
+    db = sqlite3.connect("college_rooms.db")
+    cur = db.cursor()
+    return db, cur
+
+# A function to commit changes made to the database
+def CommitDatabase():
+    global database
+    database.commit()
 
 # A function to create a table, skip if it already exists
 def CreateTable(command):
@@ -69,7 +80,6 @@ def BookRoom(TokenNo, Building, RoomType, StartTime, Duration):
         command = "INSERT INTO timetable VALUES ('" + assignedRoom + "', '" + StartTime + "', '" + Duration + "')"
         notavailable = "UPDATE rooms SET Availability = 0 WHERE Location = '" + assignedRoom + "'"
         logentry = "INSERT INTO log VALUES ('" + TokenNo + "', '" + assignedRoom + "')"
-        print(logentry)
         cur.execute(command)
         cur.execute(notavailable)
         cur.execute(logentry)
@@ -96,6 +106,9 @@ def AvailableRooms(RoomType):
     except:
         pass
 
+# Connect to the database
+database, cur = ConnectDatabase()
+
 # Create the table which will store information about rooms
 # This table contains the room's location, its availability status and the type (i.e. capacity)
 CreateTable("CREATE TABLE rooms (Location varchar(10) PRIMARY KEY, Availability int, Type varchar(20))")
@@ -114,4 +127,5 @@ InitDatabase(4, 3, 4)
 print(BookRoom(rq.GenerateID(), "1", "Classroom", "12:00:00", "01:00:00"))
 print(AvailableRooms("Classroom"))
 
-database.commit()
+# Commit all changes to the database
+CommitDatabase()
