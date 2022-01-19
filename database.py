@@ -42,7 +42,7 @@ def MakeTables():
     CreateTable("CREATE TABLE timetable (Location varchar(10) PRIMARY KEY, Initiation_Time time, Duration time, FOREIGN KEY (Location) REFERENCES rooms(Location))")
 
     # Create a table for logging requests
-    CreateTable("CREATE TABLE log (TokenNo varchar(10), Location varchar(10) PRIMARY KEY, FOREIGN KEY (Location) REFERENCES rooms(Location))")
+    CreateTable("CREATE TABLE log (TokenNo varchar(10), Location varchar(10) PRIMARY KEY, Reason varchar(1024), FOREIGN KEY (Location) REFERENCES rooms(Location))")
 
 
 # A function to check if a room is available
@@ -83,7 +83,7 @@ def InitDatabase(Buildings, Floors, Rooms):
                 
 # A function which allows the user to book a particular room at a certain date / time for a particular duration
 # Returns the location of the chosen room if successful, else if all rooms of the required type are booked, returns -1
-def BookRoom(TokenNo, Building, RoomType, StartTime, Duration):
+def BookRoom(TokenNo, Building, RoomType, StartTime, Duration, Reason):
     try:
         global cur
         
@@ -98,7 +98,7 @@ def BookRoom(TokenNo, Building, RoomType, StartTime, Duration):
         # Execute the commands to insert booking information into both the tables
         command = "INSERT INTO timetable VALUES ('" + assignedRoom + "', '" + formattedStartTime + "', '" + formattedDuration + "')"
         notavailable = "UPDATE rooms SET Availability = 0 WHERE Location = '" + assignedRoom + "'"
-        logentry = "INSERT INTO log VALUES ('" + TokenNo + "', '" + assignedRoom + "')"
+        logentry = "INSERT INTO log VALUES ('" + TokenNo + "', '" + assignedRoom + "', '" + Reason + "')"
         cur.execute(command)
         cur.execute(notavailable)
         cur.execute(logentry)
