@@ -20,7 +20,7 @@ class level2_window(QMainWindow):
         self.approved_win = approved_window()
         self.username = ""
         self.auth = True
-        self.approved_list = [["Token", "Room"]]
+        self.approved_list = [["Token", "Room", "Reason"]]
         self.room_type = ""
 
         self.err_box = QMessageBox()
@@ -98,15 +98,24 @@ class level2_window(QMainWindow):
 
     def send_req_button_action(self, click):
         if self.sign_in:
-            room = db.BookRoom(TokenNo=self.token_no_textbox.text(), Building=self.building_no_textbox.text(), RoomType=self.room_type, StartTime=self.time_textbox.text(), Duration=self.duration_textbox.text())
+            room = db.BookRoom(TokenNo=self.token_no_textbox.text(), Building=self.building_no_textbox.text(), RoomType=self.room_type, StartTime=self.time_textbox.text(), Duration=self.duration_textbox.text(), Reason=self.reason_text.toPlainText())
             if room != -1:
-                self.approved_list.append([self.token_no_textbox.text(), room])
+                self.approved_list.append([self.token_no_textbox.text(), room, self.reason_text.toPlainText()])
+                self.err_box.setWindowTitle("Success")
                 self.err_box.setText(f"Room {room} has been alloted for {self.token_no_textbox.text()}!")
                 self.err_box.exec_()
             else:
+                self.err_box.setWindowTitle("Error")
+                self.err_box.setText("No room available with the given description!")
                 self.err_box.exec_()
             print(room)
             db.CommitDatabase()
+            self.token_no_textbox.setText("")
+            self.time_textbox.setText("0000")
+            self.duration_textbox.setText("0000")
+            self.classroom_checkbox1.setChecked(False)
+            self.classroom_checkbox2.setChecked(False)
+            self.classroom_checkbox3.setChecked(False)
         else:
             print("Sign In")
 
@@ -177,16 +186,13 @@ class approved_window(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Approved Rooms")
-        self.setGeometry(100, 100, 400, 400)
-        
-        self.grid = QGridLayout()
-        self.setLayout(self.grid)
-        
-        self.approved_list = QLabel("Approved Requests: ", self)
-        self.grid.addWidget(self.approved_list, 0, 0)
+        self.setGeometry(100, 100, 650, 400)
 
         self.approved_tab = QTableView(self)
-        self.approved_tab.setGeometry(150, 100, 250, 200)
+        # self.header = QHeaderView('horizontal', self)
+        # self.header.
+        # self.approved_tab.horizontalHeader()
+        self.approved_tab.setGeometry(0, 0, 650, 400)
 
     def create_table(self, data):
         self.model = approved_tabel_model(data)
