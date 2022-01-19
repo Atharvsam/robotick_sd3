@@ -29,6 +29,19 @@ def CreateTable(command):
         # print(err)
         pass
 
+# A function to make all required tables
+def MakeTables():
+    # Create the table which will store information about rooms
+    # This table contains the room's location, its availability status and the type (i.e. capacity)
+    CreateTable("CREATE TABLE rooms (Location varchar(10) PRIMARY KEY, Availability int, Type varchar(20))")
+
+    # Create the table which will store the list of booked rooms and their timings
+    CreateTable("CREATE TABLE timetable (Location varchar(10) PRIMARY KEY, Initiation_Time time, Duration time, FOREIGN KEY (Location) REFERENCES rooms(Location))")
+
+    # Create a table for logging requests
+    CreateTable("CREATE TABLE log (TokenNo varchar(10), Location varchar(10) PRIMARY KEY, FOREIGN KEY (Location) REFERENCES rooms(Location))")
+
+
 # A function to check if a room is available
 # Returns 0 if the room is not available, 1 if it is available
 def CheckAvailability(roomId):
@@ -71,13 +84,16 @@ def BookRoom(TokenNo, Building, RoomType, StartTime, Duration):
     try:
         global cur
         
+        formattedStartTime = ParseTime(StartTime)
+        formattedDuration = ParseTime(Duration)
+
         # Select a random available room of the requested type in a particular building
         roomSelectionCommand = "SELECT Location from rooms WHERE Type = '" + RoomType + "' AND Availability = 1 AND Location LIKE 'B" + str(Building) + "%'"
         availableRooms = cur.execute(roomSelectionCommand).fetchall()
         assignedRoom = random.choice(availableRooms) [0]
 
         # Execute the commands to insert booking information into both the tables
-        command = "INSERT INTO timetable VALUES ('" + assignedRoom + "', '" + StartTime + "', '" + Duration + "')"
+        command = "INSERT INTO timetable VALUES ('" + assignedRoom + "', '" + formattedStartTime + "', '" + formattedDuration + "')"
         notavailable = "UPDATE rooms SET Availability = 0 WHERE Location = '" + assignedRoom + "'"
         logentry = "INSERT INTO log VALUES ('" + TokenNo + "', '" + assignedRoom + "')"
         cur.execute(command)
@@ -106,25 +122,21 @@ def AvailableRooms(RoomType):
     except:
         pass
 
+def ParseTime(time):
+    formattedtime = time[0] + time[1] + ":" + time[2] + time[3] + ":00"
+    return formattedtime
+
 # Connect to the database
 database, cur = ConnectDatabase()
 
-# Create the table which will store information about rooms
-# This table contains the room's location, its availability status and the type (i.e. capacity)
-CreateTable("CREATE TABLE rooms (Location varchar(10) PRIMARY KEY, Availability int, Type varchar(20))")
-
-# Create the table which will store the list of booked rooms and their timings
-CreateTable("CREATE TABLE timetable (Location varchar(10) PRIMARY KEY, Initiation_Time time, Duration time, FOREIGN KEY (Location) REFERENCES rooms(Location))")
-
-# Create a table for logging requests
-CreateTable("CREATE TABLE log (TokenNo varchar(10), Location varchar(10) PRIMARY KEY, FOREIGN KEY (Location) REFERENCES rooms(Location))")
+MakeTables()
 
 # Initialzing the database with all available classrooms in the campus
 # The first argument is the number of buildings, the second is the number of floors on each building and third is the number of rooms on each floor
 # The type of each room is assigned randomly, but would be filled out manually in a real-life scenario
 InitDatabase(4, 3, 4)
 
-print(BookRoom(rq.GenerateID(), "1", "Classroom", "12:00:00", "01:00:00"))
+print(BookRoom(rq.GenerateID(), "1", "Classroom", "1300", "0130"))
 print(AvailableRooms("Classroom"))
 
 # Commit all changes to the database
