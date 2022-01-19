@@ -94,7 +94,20 @@ class level2_window(QMainWindow):
         self.send_req_button.setGeometry(0, 130, 100, 40)
         self.send_req_button.clicked.connect(self.send_req_button_action)
 
+        self.dealloc_req_button = QPushButton("Deallocate Token", self)
+        self.dealloc_req_button.setGeometry(130, 130, 140, 40)
+        self.dealloc_req_button.clicked.connect(self.dealloc_req_button_action)
+
         self.show()
+
+    def dealloc_req_button_action(self, click):
+        if self.token_no_textbox.text() != "":
+            db.Deallocate(TokenID=self.token_no_textbox.text())
+            i = 0
+            for val in self.approved_list:
+                if self.token_no_textbox.text() in val:
+                    self.approved_list.pop(i)
+                i+=1
 
     def send_req_button_action(self, click):
         if self.sign_in:
@@ -189,9 +202,6 @@ class approved_window(QWidget):
         self.setGeometry(100, 100, 650, 400)
 
         self.approved_tab = QTableView(self)
-        # self.header = QHeaderView('horizontal', self)
-        # self.header.
-        # self.approved_tab.horizontalHeader()
         self.approved_tab.setGeometry(0, 0, 650, 400)
 
     def create_table(self, data):
